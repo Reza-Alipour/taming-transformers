@@ -450,7 +450,7 @@ if __name__ == "__main__":
                     quant_conv=None,
                     post_quant_conv=None
             ):
-                super(VQGANModel, self).__init__()
+                super(VQGANModelLoader, self).__init__()
 
                 self.encoder = encoder
                 self.decoder = decoder
