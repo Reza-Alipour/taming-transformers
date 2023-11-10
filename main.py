@@ -541,13 +541,13 @@ if __name__ == "__main__":
                     "clamp": True
                 }
             },
-            "learning_rate_logger": {
-                "target": "main.LearningRateMonitor",
-                "params": {
-                    "logging_interval": "step",
-                    # "log_momentum": True
-                }
-            },
+            # "learning_rate_logger": {
+            #     "target": "main.LearningRateMonitor",
+            #     "params": {
+            #         "logging_interval": "step",
+            #         "log_momentum": True
+            #     }
+            # },
         }
         # callbacks_cfg = lightning_config.callbacks or OmegaConf.create()
         callbacks_cfg = OmegaConf.create()
