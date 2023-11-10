@@ -33,11 +33,11 @@ data:
     train:
       target: taming.data.custom.CustomTrain
       params:
-        training_images_list_file: ds/training.txt
+        training_images_list_file: train/training.txt
         size: 256
     validation:
       target: taming.data.custom.CustomTest
       params:
-        test_images_list_file: ds/test.txt
+        test_images_list_file: test/test.txt
         size: 256
 
