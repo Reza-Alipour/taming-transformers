@@ -514,7 +514,8 @@ if __name__ == "__main__":
             default_modelckpt_cfg["params"]["monitor"] = model.monitor
             default_modelckpt_cfg["params"]["save_top_k"] = 3
 
-        modelckpt_cfg = lightning_config.modelcheckpoint or OmegaConf.create()
+        # modelckpt_cfg = lightning_config.modelcheckpoint or OmegaConf.create()
+        modelckpt_cfg = OmegaConf.create()
         modelckpt_cfg = OmegaConf.merge(default_modelckpt_cfg, modelckpt_cfg)
         trainer_kwargs["checkpoint_callback"] = instantiate_from_config(modelckpt_cfg)
 
@@ -596,6 +597,19 @@ if __name__ == "__main__":
 
         signal.signal(signal.SIGUSR1, melk)
         signal.signal(signal.SIGUSR2, divein)
+
+        ## Test ##
+        img = Image.open("0.png")
+        resized_img = img.resize((256, 256))
+        inp = torch.stack([ToTensor()(resized_img.convert('RGB'))])
+        images = model(inp)[0]
+        images = 2.0 * images - 1.0
+        images = torch.clamp(images, -1.0, 1.0)
+        images = (images + 1.0) / 2.0
+        images *= 255.0
+        images = images.permute(0, 2, 3, 1).cpu().detach().numpy().astype(np.uint8)
+        pil_images = [Image.fromarray(image) for image in images]
+        pil_images[0].save('ret2.png')
 
         # run
         if opt.train:
