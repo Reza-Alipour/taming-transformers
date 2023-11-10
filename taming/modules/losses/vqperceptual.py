@@ -114,7 +114,7 @@ class VQLPIPSWithDiscriminator(nn.Module):
             loss = nll_loss + d_weight * disc_factor * g_loss + self.codebook_weight * codebook_loss.float().mean()
 
             log = {"{}/total_loss".format(split): loss.clone().detach().mean(),
-                   "{}/quant_loss".format(split): codebook_loss.detach().mean(),
+                   "{}/quant_loss".format(split): codebook_loss.detach().float().mean(),
                    "{}/nll_loss".format(split): nll_loss.detach().mean(),
                    "{}/rec_loss".format(split): rec_loss.detach().mean(),
                    "{}/p_loss".format(split): p_loss.detach().mean(),
