@@ -22,10 +22,8 @@ from functools import partial
 from pathlib import PosixPath
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-import accelerate
 import numpy as np
 import torch
-from accelerate.utils import set_module_tensor_to_device
 from huggingface_hub import hf_hub_download
 from huggingface_hub.utils import (
     EntryNotFoundError,
@@ -518,57 +516,6 @@ class ModelMixin(torch.nn.Module):
                 user_agent=user_agent,
             )
 
-        if low_cpu_mem_usage:
-            # Instantiate model with empty weights
-            with accelerate.init_empty_weights():
-                config, unused_kwargs = cls.load_config(
-                    config_path,
-                    cache_dir=cache_dir,
-                    return_unused_kwargs=True,
-                    force_download=force_download,
-                    resume_download=resume_download,
-                    proxies=proxies,
-                    local_files_only=local_files_only,
-                    use_auth_token=use_auth_token,
-                    revision=revision,
-                    subfolder=subfolder,
-                    device_map=device_map,
-                    **kwargs,
-                )
-                model = cls.from_config(config, **unused_kwargs)
-
-            # if device_map is None, load the state dict and move the params from meta device to the cpu
-            if device_map is None:
-                param_device = "cpu"
-                state_dict = load_state_dict(model_file)
-                # move the params from meta device to cpu
-                missing_keys = set(model.state_dict().keys()) - set(state_dict.keys())
-                if len(missing_keys) > 0:
-                    raise ValueError(
-                        f"Cannot load {cls} from {pretrained_model_name_or_path} because the following keys are"
-                        f" missing: \n {', '.join(missing_keys)}. \n Please make sure to pass"
-                        " `low_cpu_mem_usage=False` and `device_map=None` if you want to randomely initialize"
-                        " those weights or else make sure your checkpoint file is correct."
-                    )
-
-                for param_name, param in state_dict.items():
-                    accepts_dtype = "dtype" in set(inspect.signature(set_module_tensor_to_device).parameters.keys())
-                    if accepts_dtype:
-                        set_module_tensor_to_device(model, param_name, param_device, value=param, dtype=torch_dtype)
-                    else:
-                        set_module_tensor_to_device(model, param_name, param_device, value=param)
-            else:  # else let accelerate handle loading and dispatching.
-                # Load weights and dispatch according to the device_map
-                # by deafult the device_map is None and the weights are loaded on the CPU
-                accelerate.load_checkpoint_and_dispatch(model, model_file, device_map, dtype=torch_dtype)
-
-            loading_info = {
-                "missing_keys": [],
-                "unexpected_keys": [],
-                "mismatched_keys": [],
-                "error_msgs": [],
-            }
-        else:
             config, unused_kwargs = cls.load_config(
                 config_path,
                 cache_dir=cache_dir,
