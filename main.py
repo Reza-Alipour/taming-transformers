@@ -10,7 +10,6 @@ import pytorch_lightning as pl
 import torch
 import torchvision
 from PIL import Image
-from muse import PipelineMuse
 from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
 from pytorch_lightning.callbacks import Callback
@@ -442,17 +441,30 @@ if __name__ == "__main__":
 
         # model
         model = instantiate_from_config(config.model)
-        trained_model = PipelineMuse.from_pretrained(
-            text_encoder_path='openMUSE/clip-vit-large-patch14-text-enc',
-            vae_path='openMUSE/vqgan-f16-8192-laion',
-            transformer_path='reza-alipour/temp'
-        ).to("cpu", dtype=torch.float32)
-        trained_vae = trained_model.vae
-        model.encoder = trained_vae.encoder
-        model.decoder = trained_vae.decoder
-        model.quantize = trained_vae.quantize
-        model.quant_conv = trained_vae.quant_conv
-        model.post_quant_conv = trained_vae.post_quant_conv
+        class VQGANModelLoader(torch.nn.Module):
+            def __init__(
+                    self,
+                    encoder=None,
+                    decoder=None,
+                    quantize=None,
+                    quant_conv=None,
+                    post_quant_conv=None
+            ):
+                super(VQGANModel, self).__init__()
+
+                self.encoder = encoder
+                self.decoder = decoder
+                self.quantize = quantize
+                self.quant_conv = quant_conv
+                self.post_quant_conv = post_quant_conv
+
+
+        pretrained_vae = torch.load('pretrained_vae.pth')
+        model.encoder = pretrained_vae.encoder
+        model.decoder = pretrained_vae.decoder
+        model.quantize = pretrained_vae.quantize
+        model.quant_conv = pretrained_vae.quant_conv
+        model.post_quant_conv = pretrained_vae.post_quant_conv
 
         ## Test ##
         img = Image.open("0.png")
