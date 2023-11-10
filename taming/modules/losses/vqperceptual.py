@@ -104,14 +104,14 @@ class VQLPIPSWithDiscriminator(nn.Module):
                 d_weight = torch.tensor(0.0)
 
             disc_factor = adopt_weight(self.disc_factor, global_step, threshold=self.discriminator_iter_start)
-            print(f'NLL_Loss: {nll_loss}')
-            print(f'D Weight: {d_weight}')
-            print(f'Disc Factor: {disc_factor}')
-            print(f'G_Loss: {g_loss}')
-            print(f'Codebook_Weight: {self.codebook_weight}')
-            print(f'Codebook_Loss: {codebook_loss}')
-            print(f'Codebook_Loss_Mean: {codebook_loss.mean()}')
-            loss = nll_loss + d_weight * disc_factor * g_loss + self.codebook_weight * codebook_loss.mean()
+            # print(f'NLL_Loss: {nll_loss}')
+            # print(f'D Weight: {d_weight}')
+            # print(f'Disc Factor: {disc_factor}')
+            # print(f'G_Loss: {g_loss}')
+            # print(f'Codebook_Weight: {self.codebook_weight}')
+            # print(f'Codebook_Loss: {codebook_loss}')
+            # print(f'Codebook_Loss_Mean: {codebook_loss.mean()}')
+            loss = nll_loss + d_weight * disc_factor * g_loss + self.codebook_weight * codebook_loss.float().mean()
 
             log = {"{}/total_loss".format(split): loss.clone().detach().mean(),
                    "{}/quant_loss".format(split): codebook_loss.detach().mean(),
