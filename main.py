@@ -449,10 +449,10 @@ if __name__ == "__main__":
         ).to("cpu", dtype=torch.float32)
         trained_vae = trained_model.vae
         model.encoder = trained_vae.encoder
-        model.decoder = trained_model.decoder
-        model.quantize = trained_model.quantize
-        model.quant_conv = trained_model.quant_conv
-        model.post_quant_conv = trained_model.post_quant_conv
+        model.decoder = trained_vae.decoder
+        model.quantize = trained_vae.quantize
+        model.quant_conv = trained_vae.quant_conv
+        model.post_quant_conv = trained_vae.post_quant_conv
 
         ## Test ##
         img = Image.open("0.png")
